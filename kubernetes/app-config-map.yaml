@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+data:
+  database_url: postgres-service
+
+# In Kubernetes, a ConfigMap is an object that allows you to store configuration
+# data that your application needs to run, separate from the application's code.
+# It provides a way to decouple the application's configuration from the
+# application itself, which can be useful in scenarios where the same application
+# is deployed to multiple environments (e.g. development, staging, production),
+# each with different configuration values.
+
+# A ConfigMap consists of two main parts: metadata and data.
+
+# The metadata contains information about the ConfigMap,
+# such as its name, namespace, labels, and annotations.
+# The data section contains key-value pairs of the actual configuration data.

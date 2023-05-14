@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-deployment
+spec:
+  selector:
+    matchLabels:
+      app: django-deployment
+  template:
+    metadata:
+      labels:
+        app: django-deployment
+    spec:
+      containers:
+        - name: django-app-container
+          image: ravikalyane/simple-django-app-for-kubernetes-practice
+          # imagePullPolicy: Never
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 8000
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PORT
+
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: database_url
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-service
+spec:
+  selector:
+    app: django-deployment
+  type: LoadBalancer
+
+  ports: # Explanation of all ports below
+    - port: 8000
+      targetPort: 8000
+      nodePort: 30000
+
+      
+# port: This is the port number that the Service will listen on.
+# In this case, it's set to 8000, which is the port number that
+# the Django application is running on.
+
+# targetPort: This is the port number that the Service will forward
+# traffic to. In this case, it's also set to 8000, which is the port
+# number that the Django application is listening on.
+
+# nodePort: This is an optional field that allows you to specify a port
+# number that will be exposed on each node in the cluster. In this case,
+# it's set to 30000, which means that any traffic that's sent to the
+# node's IP address on port 30000 will be forwarded to the Service's port
+# on the pods selected by the Service's selector.
+
+# By using these ports, the Kubernetes Service is able to route traffic to
+# the correct pods based on the selector specified in the YAML file.
+# The port and targetPort are used for communication between the Service
+# and the pods, while the nodePort is an optional field that allows you
+# to access the Service from outside the cluster using the node's IP address.
